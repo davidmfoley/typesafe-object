@@ -1,9 +1,16 @@
 import { typesafeObject } from '../src'
 
+//
+// Define field types
+//
+// The key names in this object are the field types, and the values are functions that validate and convert data.
 const typesafe = typesafeObject({
   anyValue: (value) => value,
+
   capitalizedString: (value) => ('' + value).toUpperCase(),
+
   roundedInteger: (value) => Math.round(Number(value)),
+
   positiveNumber: (value) => {
     if (typeof value !== 'number') throw new Error('not a number!')
     if (value <= 0) throw new Error('must be greater than zero')
@@ -16,9 +23,9 @@ const typesafe = typesafeObject({
 // A "Schema" is an object that has a key for each field, and the value is one of the field types you defined.
 //
 // The keys here match the fields on the objects you will parse.
-// The values are the keys that we used above for the field definitions.
+// The values are the field types -- the keys in the object that we used above for the field definitions.
 //
-// This is typescript-enabled, so you will see type errors if any of the field types don't match the ones you set up in the first step.
+// This is typescript-enabled, so you will see type errors if any of the field type names don't match the ones you set up in the first step.
 //
 const parser = typesafe.objectParser({
   firstName: 'capitalizedString',
