@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "ci": "yarn build && yarn test",
     "clean": "rm -rf ./lib/",
     "examples": "for f in examples/*.ts; do yarn ts-node $f;done",
     "prettier": "prettier -c '{src,test}/**/*.ts'",
