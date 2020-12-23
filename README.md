@@ -25,7 +25,7 @@ These are the functions that validate and parse incoming fields.
 The key names in this object are important -- they will be used in the next step to specify how each field in an object is parsed.
 
 ```
-import typesafeObject from 'typesafe-object'
+import { typesafeObject } from 'typesafe-object'
 
 const typesafe = typesafeObject({
   capitalizedString: value => ('' + value).toUpperCase(),
