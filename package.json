@@ -15,6 +15,7 @@
     "clean": "rm -rf ./lib/",
     "examples": "for f in examples/*.ts; do yarn ts-node $f;done",
     "prettier": "prettier -c '{src,test}/**/*.ts'",
+    "prepublish": "yarn build",
     "fix:prettier": "prettier --write '{src,test}/**/*.ts'",
     "test": "mocha",
     "test:watch": "nodemon -q -e ts --exec \"yarn test\" --watch src --watch test"
