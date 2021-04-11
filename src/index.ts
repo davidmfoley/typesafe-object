@@ -1,18 +1,24 @@
-type Fields = Record<string, (x: any) => any>
+type Converter = (x: any) => any
+type Fields = Record<string, Converter>
 
-type ObjectSchema<C extends Fields> = Readonly<Record<string, keyof C>>
+type ObjectSchema<C extends Fields> = Readonly<Record<string, keyof C | Function>>
+
+//type FieldType<C extends Fields, S extends ObjectSchema<C>, K extends Record
 
 type Result<C extends Fields, S extends ObjectSchema<C>> = {
-  [K in keyof S]: ReturnType<C[S[K]]>
+  [K in keyof S]: S[K] extends string ?  ReturnType<C[S[K]]> :
+  S[K] extends Converter ? ReturnType<S[K]> : never
 }
 
-export const typesafeObject = <F extends Fields>(fieldTypes: F) => ({
+export const objectParser = <F extends Fields>(f: F) => typesafeObject().objectParser(f)
+
+export const typesafeObject = <F extends Fields>(fieldTypes?: F) => ({
   extend: <AF extends Fields>(additionalFields: AF) =>
     typesafeObject(({ ...fieldTypes, ...additionalFields } as unknown) as F &
       AF),
   objectParser: <S extends Readonly<ObjectSchema<F>>>(schema: S) => {
     const unknownFields = Object.keys(schema).filter(
-      (f) => !fieldTypes[schema[f]]
+      (f) => typeof schema[f] === 'string' && !(fieldTypes||{})[schema[f] as any]
     )
 
     if (unknownFields.length) {
@@ -29,7 +35,9 @@ export const typesafeObject = <F extends Fields>(fieldTypes: F) => ({
     const converters = keys.map((k) => ({
       fieldName: k,
       fieldType: schema[k],
-      fn: fieldTypes[schema[k]],
+      fn: typeof schema[k] === 'function' ?
+       schema[k] as Converter :
+        (fieldTypes[schema[k] as keyof F]) as Converter
     }))
 
     return {
@@ -43,7 +51,8 @@ export const typesafeObject = <F extends Fields>(fieldTypes: F) => ({
 
         for (let { fieldType, fieldName, fn } of converters) {
           try {
-            result[fieldName] = fn(input[fieldName])
+            const val = fn(input[fieldName])
+            if (typeof val !== 'undefined') result[fieldName] = val
           } catch (e) {
             errors.push(`${fieldName}: ${e.message || e} (${fieldType})`)
           }
