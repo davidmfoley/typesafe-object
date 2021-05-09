@@ -14,6 +14,24 @@ test('can use a function directly', () => {
   })
 })
 
+test('can recursively use object parser', () => {
+  const intParser = objectParser({
+    value: (v) => Math.round(Number(v)),
+  })
+
+  const values = objectParser({
+    intA: intParser
+  })
+
+  const result = values.parse({ intA: { value: '1'} })
+
+  expect(result).to.eql({
+    intA: {
+      value: 1,
+    }
+  })
+})
+
 test('includes null fieldss', () => {
   const parser = objectParser({
     nullable: (v) => v || null,
